@@ -9,7 +9,7 @@ namespace Api.Models
         public decimal Latitude { get; set; }
         public decimal Longitude { get; set; }
         public string CellType { get; set; }
-        public int Dbm { get; set; }
+        public int Level { get; set; }
         public DateTime Timestamp { get; set; }
     }
 }
