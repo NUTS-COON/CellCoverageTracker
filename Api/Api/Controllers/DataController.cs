@@ -30,6 +30,17 @@ namespace Api.Controllers
             return new { success = true };
         }
         
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<object> SaveMany([FromBody] CellInfo[] models)
+        {
+            await _dataService.Add(models);
+            return new { success = true };
+        }
+        
         [HttpPost]
         public async Task<long> CountByImei([FromBody] CountByImeiRequest model)
         {

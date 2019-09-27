@@ -17,7 +17,19 @@ namespace Api.Logic
             _data = database.GetCollection<CellInfo>(settings.CollectionName);
         }
 
-        public async Task<long> CountByImei(string imei) => await _data.CountDocumentsAsync(data => true);
-        public async Task Add(CellInfo item) => await _data.InsertOneAsync(item);
+        public async Task<long> CountByImei(string imei)
+        {
+            return await _data.CountDocumentsAsync(x => x.IMEI == imei);
+        }
+
+        public async Task Add(CellInfo item)
+        {
+            await _data.InsertOneAsync(item);
+        }
+
+        public async Task Add(CellInfo[] items)
+        {
+            await _data.InsertManyAsync(items);
+        }
     }
 }
