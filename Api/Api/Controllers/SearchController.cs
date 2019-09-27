@@ -55,7 +55,7 @@ namespace Api.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public RouteLocationInfo[] GetRoule(string routeId)
+        public RouteLocationInfo[] GetRoute(string routeId)
         {
             return new []
             { 
