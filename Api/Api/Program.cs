@@ -21,6 +21,10 @@ namespace Api
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
                 .UseSetting("detailedErrors", "true")
+                .ConfigureAppConfiguration(cb =>
+                {
+                    cb.AddJsonFile("customsettings.json");
+                })
                 .CaptureStartupErrors(true);
     }
 }

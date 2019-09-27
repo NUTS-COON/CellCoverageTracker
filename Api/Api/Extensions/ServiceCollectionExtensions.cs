@@ -1,7 +1,11 @@
 using System;
 using System.IO;
 using System.Reflection;
+using Api.Logic;
+using Api.Settings;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Examples;
 using Swashbuckle.AspNetCore.Swagger;
 
@@ -9,19 +13,13 @@ namespace Api.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddStores(this IServiceCollection services, string connectionString)
-        {/*
-            services.AddTransient(provider => new DbRepository(connectionString));
-*/
-            return services;
-        }
 
-        public static IServiceCollection AddServices(this IServiceCollection services)
-        {/*
-            services.AddTransient<IHereService, HereService>();
-            services.AddTransient<IRouteSearcher, RouteSearcher>();
-            services.AddTransient<ISuggestionSearcher, SuggestionSearcher>();
-*/
+        public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration Configuration)
+        {
+            services.Configure<MongoSettings>(Configuration.GetSection(nameof(MongoSettings)));
+            services.AddSingleton(sp => sp.GetRequiredService<IOptions<MongoSettings>>().Value);
+            services.AddSingleton<DataService>();
+            
             return services;
         }
 
