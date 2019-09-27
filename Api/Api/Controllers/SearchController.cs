@@ -1,12 +1,8 @@
-using Api.Logic;
 using Api.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
 {
-    /// <summary>
-    /// 
-    /// </summary>
     [Route("api/[controller]/[action]")]
     [ApiController]
     public class SearchController : ControllerBase

@@ -1,6 +1,7 @@
 ﻿using Api.Logic;
 using Api.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace Api.Controllers
 {
@@ -23,16 +24,16 @@ namespace Api.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost]
-        public object Save([FromBody] CellInfo model)
+        public async Task<object> Save([FromBody] CellInfo model)
         {
-            _dataService.Add(model);
+            await _dataService.Add(model);
             return new { success = true };
         }
         
         [HttpPost]
-        public long CountByImei([FromBody] CountByImeiRequest model)
+        public async Task<long> CountByImei([FromBody] CountByImeiRequest model)
         {
-            return _dataService.CountByImei(model.Imei);
+            return await _dataService.CountByImei(model.Imei);
         }
     }
 }

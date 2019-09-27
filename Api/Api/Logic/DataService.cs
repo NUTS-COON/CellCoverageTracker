@@ -1,6 +1,7 @@
 using Api.Models;
 using Api.Settings;
 using MongoDB.Driver;
+using System.Threading.Tasks;
 
 namespace Api.Logic
 {
@@ -16,14 +17,7 @@ namespace Api.Logic
             _data = database.GetCollection<CellInfo>(settings.CollectionName);
         }
 
-        public long CountByImei(string imei)
-        {
-            return _data.CountDocuments(book => true);
-        }
-
-        public void Add(CellInfo item)
-        {
-            _data.InsertOne(item);
-        }
+        public async Task<long> CountByImei(string imei) => await _data.CountDocumentsAsync(data => true);
+        public async Task Add(CellInfo item) => await _data.InsertOneAsync(item);
     }
 }
