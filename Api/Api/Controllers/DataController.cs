@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Api.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class DataController : ControllerBase
@@ -14,10 +14,9 @@ namespace Api.Controllers
         /// 
         /// </summary>
         /// <returns></returns>
-        [HttpGet]
-        public ActionResult<IEnumerable<string>> Get()
+        [HttpPost]
+        public void Save([FromBody] CellInfo model)
         {
-            return new string[] {"value1", "value2"};
         }
     }
 }
