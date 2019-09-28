@@ -12,14 +12,20 @@ namespace Api.Models
         public string Title { get; set; }
         public double[] Position { get; set; }
 
-        public SuggesionAddress ToSuggestion() => new SuggesionAddress
+        public SuggesionAddress ToSuggestion()
         {
-            Title = Title,
-            Coordinate = new Coordinate
+            if (Position == null)
+                return null;
+
+            return new SuggesionAddress
             {
-                Latitude = Position[0],
-                Longitude = Position[1]
-            }
-        };
+                Title = Title,
+                Coordinate = new Coordinate
+                {
+                    Latitude = Position[0],
+                    Longitude = Position[1]
+                }
+            };
+        }
     }
 }

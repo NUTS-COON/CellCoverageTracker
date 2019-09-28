@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Api.Logic;
+using System.Linq;
 
 namespace Api.Controllers
 {
@@ -41,7 +42,8 @@ namespace Api.Controllers
         [HttpPost]
         public async Task<IEnumerable<SuggesionAddress>> GetSuggestions([FromBody]AddressText model)
         {
-            return await _hereService.GetSuggestions(model?.Text);
+            var suggestions = await Task.WhenAll(_hereService.GetSuggestions(model?.Text), _hereService.GetPlacesSuggestion(model?.Text));
+            return suggestions[0].Concat(suggestions[1]);
         }
 
         [HttpPost]
