@@ -1,5 +1,6 @@
 using Api.Models;
 using Api.Services.Interfaces;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using System.Threading.Tasks;
 namespace Api.Controllers
 {
     [Route("api/[controller]/[action]")]
+    [EnableCors("AllowAll")]
     [ApiController]
     public class SearchController : ControllerBase
     {

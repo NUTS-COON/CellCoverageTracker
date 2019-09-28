@@ -1,5 +1,6 @@
 ﻿using Api.Logic;
 using Api.Models;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -9,6 +10,7 @@ namespace Api.Controllers
     /// 
     /// </summary>
     [Route("api/[controller]/[action]")]
+    [EnableCors("AllowAll")]
     [ApiController]
     public class DataController : ControllerBase
     {
