@@ -34,14 +34,14 @@ namespace Api.Controllers
                 return null;
             
             var points = await _dataService.SearchGeo(route.ToArray());
-            
+
             return new RouteInfoResponse()
             {
                 Route = route,
                 Points = points.Take(500).ToList(),
                 Stat = new RouteStat()
                 {
-                    OperatorStats =
+                    OperatorStats = new List<RouteOperatorStat>()
                     {
                         new RouteOperatorStat()
                         {
