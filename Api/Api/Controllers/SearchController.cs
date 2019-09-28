@@ -29,9 +29,21 @@ namespace Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IEnumerable<SuggesionAddress>> GetSuggestions([FromBody]AddressText text)
+        public async Task<IEnumerable<SuggesionAddress>> GetSuggestionsWithCoordinates([FromBody]AddressText model)
         {
-            return await _hereService.GetSuggestionsWithCoordinates(text?.Text);
+            return await _hereService.GetSuggestionsWithCoordinates(model?.Text);
+        }
+
+        [HttpPost]
+        public async Task<IEnumerable<SuggesionAddress>> GetSuggestions([FromBody]AddressText model)
+        {
+            return await _hereService.GetSuggestions(model?.Text);
+        }
+
+        [HttpPost]
+        public async Task<Coordinate> GetCoordinate([FromBody]LocationIdModel model)
+        {
+            return await _hereService.GetCoordinate(model?.LocationId);
         }
     }
 }

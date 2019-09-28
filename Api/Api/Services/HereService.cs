@@ -56,7 +56,7 @@ namespace Api.Services
             return (await HttpHepler.GetResult<HereGeocoder>(url))?.GetCoordinate();
         }
 
-        public async Task<HereSuggestions> GetSuggestions(string text)
+        public async Task<HereSuggestions> GetHereSuggestions(string text)
         {
             if (string.IsNullOrEmpty(text))
                 return null;
@@ -71,9 +71,22 @@ namespace Api.Services
             return await HttpHepler.GetResult<HereSuggestions>(url);
         }
 
+        public async Task<IEnumerable<SuggesionAddress>> GetSuggestions(string text)
+        {
+            var suggections = (await GetHereSuggestions(text))?.Suggestions;
+            if (suggections == null || !suggections.Any())
+                return Enumerable.Empty<SuggesionAddress>();
+
+            return suggections.Select(suggection => new SuggesionAddress
+            {
+                LocationId = suggection.LocationId,
+                Address = suggection.Address.FullAddress
+            });
+        }
+
         public async Task<IEnumerable<SuggesionAddress>> GetSuggestionsWithCoordinates(string text)
         {
-            var suggections = (await GetSuggestions(text))?.Suggestions;
+            var suggections = (await GetHereSuggestions(text))?.Suggestions;
             if (suggections == null || !suggections.Any())
                 return Enumerable.Empty<SuggesionAddress>();
 
