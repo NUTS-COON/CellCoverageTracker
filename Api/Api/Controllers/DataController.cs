@@ -48,11 +48,5 @@ namespace Api.Controllers
         {
             return await _dataService.CountByImei(model.Imei);
         }
-
-        [HttpPost]
-        public async Task<object> GetPoints([FromBody]RectangleOfSearch model)
-        {
-            return await _dataService.Get(model);
-        }
     }
 }
