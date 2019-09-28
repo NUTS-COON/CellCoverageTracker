@@ -19,22 +19,21 @@ class NetworkService(
     private val context: Context,
     private val telephonyManager: TelephonyManager,
     private val fusedLocationClient: FusedLocationProviderClient,
-    private val subscriptionManager: SubscriptionManager
-) {
+    private val subscriptionManager: SubscriptionManager) {
+
 
     private val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.UK)
-
     private lateinit var locationCallback: LocationCallback
 
 
-    fun getCellData(onSuccess: (List<CellData>) -> Unit) {
+    fun retrieveCellData(onSuccess: (List<CellData>) -> Unit) {
         fusedLocationClient.lastLocation.addOnSuccessListener {
             if (it == null || it.accuracy > 100) {
                 locationCallback = object : LocationCallback() {
                     override fun onLocationResult(locationResult: LocationResult?) {
                         fusedLocationClient.removeLocationUpdates(locationCallback)
                         if (locationResult != null && locationResult.locations.isNotEmpty()) {
-                            onSuccess(retrieveCellData(locationResult.locations[0]))
+                            onSuccess(getCellData(locationResult.locations[0]))
                         }else{
                             onSuccess(emptyList())
                         }
@@ -43,14 +42,14 @@ class NetworkService(
 
                 fusedLocationClient.requestLocationUpdates(LocationRequest(), locationCallback, null)
             } else {
-                onSuccess(retrieveCellData(it))
+                onSuccess(getCellData(it))
             }
         }
     }
 
 
 
-    private fun retrieveCellData(location: Location?): MutableList<CellData> {
+    private fun getCellData(location: Location?): MutableList<CellData> {
         val cellDataToSave = mutableListOf<CellData>()
         val operatorsName = getOperatorsName()
 

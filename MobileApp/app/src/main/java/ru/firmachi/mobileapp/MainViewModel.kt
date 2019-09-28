@@ -26,7 +26,7 @@ class MainViewModel : ViewModel() {
 
 
     fun ready(networkService: NetworkService){
-        networkService.getCellData {
+        networkService.retrieveCellData {
             cellDataLiveData.value = it
         }
         cellDataLocalRepository.setNotifyDataChanged {
