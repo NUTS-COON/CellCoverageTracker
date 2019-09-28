@@ -4,7 +4,6 @@ namespace Api.Models
 {
     public class RouteSearchInfo
     {
-        public DateTime? Time { get; set; }
         public CoordinateOrLocation From { get; set; }
         public CoordinateOrLocation To { get; set; }
     }

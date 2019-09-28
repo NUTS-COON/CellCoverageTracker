@@ -2,7 +2,6 @@ using Api.Models;
 using Api.Services.Interfaces;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Api.Logic;
@@ -28,9 +27,41 @@ namespace Api.Controllers
         }
 
         [HttpPost]
-        public async Task<List<TargetRoute>> FindRoutes([FromBody]RouteSearchInfo model)
+        public async Task<RouteInfoResponse> RouteInfo([FromBody]RouteSearchInfo model)
         {
-            return await _routeSearcher.GetHereRoutes(model.From, model.To, model.Time ?? DateTime.Now);
+            var route = await _routeSearcher.GetHereRoutes(model.From, model.To);
+            if (route == null)
+                return null;
+            
+            var points = await _dataService.SearchGeo(route.ToArray());
+            
+            return new RouteInfoResponse()
+            {
+                Route = route,
+                Points = points.Take(500).ToList(),
+                Stat = new RouteStat()
+                {
+                    OperatorStats =
+                    {
+                        new RouteOperatorStat()
+                        {
+                            OperatorName = "MTS",
+                            PercentNone = 0,
+                            Percent2G = 10,
+                            Percent3G = 30,
+                            Percent4G = 60,
+                        },
+                        new RouteOperatorStat()
+                        {
+                            OperatorName = "Beeline",
+                            PercentNone = 10,
+                            Percent2G = 20,
+                            Percent3G = 30,
+                            Percent4G = 40,
+                        }
+                    }
+                }
+            };
         }
 
         [HttpPost]

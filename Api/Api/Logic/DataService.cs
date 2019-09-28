@@ -29,7 +29,7 @@ namespace Api.Logic
 
         public async Task Add(CellInfoSaveRequest[] items) => await _data.InsertManyAsync(items.Select(i => new CellInfoMongoModel(i)));
 
-        public async Task<IEnumerable<CellPoint>> SearchGeo(Coordinate[] points)
+        public async Task<List<CellPoint>> SearchGeo(Coordinate[] points)
         {
             var minX = points.Select(t => t.Longitude).Min();
             var maxX = points.Select(t => t.Longitude).Max();
@@ -37,7 +37,7 @@ namespace Api.Logic
             var maxY = points.Select(t => t.Latitude).Max();
             var filter = Builders<CellInfoMongoModel>.Filter.GeoWithinBox(c => c.Location, minX, maxX, minY,maxY);
 
-            return (await _data.FindAsync(filter))?.ToList()?.Select(c => new CellPoint(c));
+            return (await _data.FindAsync(filter))?.ToList()?.Select(c => new CellPoint(c))?.ToList();
         }
     }
 }

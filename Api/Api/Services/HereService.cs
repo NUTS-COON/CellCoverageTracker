@@ -31,12 +31,12 @@ namespace Api.Services
                 .Append($"&language=ru-ru")
                 .Append($"&mode=fastest;{mode}")
                 .Append($"&maneuverattributes=po,ti,pt,ac,di,fj,ix")
+                .Append($"&avoidtransporttypes=railLight,railRegional,busPublic,busTouristic,busIntercity,busExpress,monoRail,aerial,inclined,water,privateService,railMetro,railMetroRegional")
                 .Append($"&routeattributes=sh,gr")
                 .Append($"&waypoint0=geo!stopOver!{from.Latitude.ToString(NFI)},{from.Longitude.ToString(NFI)}")
                 .Append($"&waypoint1=geo!stopOver!{to.Latitude.ToString(NFI)},{to.Longitude.ToString(NFI)}")
-                .Append($"&departure={time.ToString("yyyy-MM-ddTHH:mm:ss")}")
                 .ToString();
-
+            
             return await HttpHepler.GetResult<HereRouteResponse>(url);
         }
 
