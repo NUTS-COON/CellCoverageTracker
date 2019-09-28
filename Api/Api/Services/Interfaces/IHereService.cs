@@ -12,5 +12,6 @@ namespace Api.Services.Interfaces
         Task<Coordinate> GetCoordinate(string locationId);
         Task<IEnumerable<SuggesionAddress>> GetSuggestionsWithCoordinates(string text);
         Task<IEnumerable<SuggesionAddress>> GetSuggestions(string text);
+        Task<IEnumerable<SuggesionAddress>> GetPlacesSuggestion(string text);
     }
 }

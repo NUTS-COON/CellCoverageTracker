@@ -16,8 +16,11 @@ namespace Api.Services
             _hereService = hereService;
         }
 
-        public async Task<List<TargetRoute>> GetHereRoutes(Coordinate from, Coordinate to, DateTime time, bool allowPedestrian = false)
+        public async Task<List<TargetRoute>> GetHereRoutes(CoordinateOrLocation fromLocation, CoordinateOrLocation toLocation, DateTime time, bool allowPedestrian = false)
         {
+            var from = await GetCoordinate(fromLocation);
+            var to = await GetCoordinate(toLocation);
+
             var result = await _hereService.GetRoutes(time, from, to);
             if (result == null && allowPedestrian)
                 result = await _hereService.GetRoutes(time, from, to, "pedestrian");
@@ -73,6 +76,14 @@ namespace Api.Services
                 };
             })
             .ToList();
+        }
+
+        private async Task<Coordinate> GetCoordinate(CoordinateOrLocation coordinateOrLocation)
+        {
+            if (coordinateOrLocation.Coordinate != null)
+                return coordinateOrLocation.Coordinate;
+
+            return await _hereService.GetCoordinate(coordinateOrLocation.LocationId);
         }
     }
 }

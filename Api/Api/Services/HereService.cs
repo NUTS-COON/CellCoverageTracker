@@ -80,8 +80,34 @@ namespace Api.Services
             return suggections.Select(suggection => new SuggesionAddress
             {
                 LocationId = suggection.LocationId,
-                Address = suggection.Address.FullAddress
+                Title = suggection.Address.FullAddress
             });
+        }
+
+        public async Task<PlacesSuggestionResponse> GetHerePlacesSuggestion(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+                return null;
+
+            var url = new StringBuilder()
+                .Append("https://places.demo.api.here.com/places/v1/autosuggest?at=55.6125538%2C55.6125538")
+                .Append($"?q={text}")
+                .Append("&at=55.6125538%2C55.6125538")
+                .Append("&Accept-Language=ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7")
+                .Append($"&app_id={_hereSettings.AppId}")
+                .Append($"&app_code={_hereSettings.AppCode}")
+                .ToString();
+
+            return await HttpHepler.GetResult<PlacesSuggestionResponse>(url);
+        }
+
+        public async Task<IEnumerable<SuggesionAddress>> GetPlacesSuggestion(string text)
+        {
+            var result = await GetHerePlacesSuggestion(text);
+            if (result?.Results == null || !result.Results.Any())
+                return Enumerable.Empty<SuggesionAddress>();
+
+            return result.Results.Select(p => p.ToSuggestion());
         }
 
         public async Task<IEnumerable<SuggesionAddress>> GetSuggestionsWithCoordinates(string text)
@@ -100,7 +126,7 @@ namespace Api.Services
                 result.Add(new SuggesionAddress
                 {
                     Coordinate = coordinate,
-                    Address = suggection.Address.FullAddress
+                    Title = suggection.Address.FullAddress
                 });
             }
 

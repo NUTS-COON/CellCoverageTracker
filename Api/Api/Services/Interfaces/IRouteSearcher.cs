@@ -7,6 +7,6 @@ namespace Api.Services.Interfaces
 {
     public interface IRouteSearcher
     {
-        Task<List<TargetRoute>> GetHereRoutes(Coordinate from, Coordinate to, DateTime time, bool allowPedestrian = false);
+        Task<List<TargetRoute>> GetHereRoutes(CoordinateOrLocation from, CoordinateOrLocation to, DateTime time, bool allowPedestrian = false);
     }
 }

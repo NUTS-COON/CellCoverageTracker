@@ -45,6 +45,12 @@ namespace Api.Controllers
         }
 
         [HttpPost]
+        public async Task<IEnumerable<SuggesionAddress>> GetPlacesSuggestions([FromBody]AddressText model)
+        {
+            return await _hereService.GetPlacesSuggestion(model?.Text);
+        }
+
+        [HttpPost]
         public async Task<Coordinate> GetCoordinate([FromBody]LocationIdModel model)
         {
             return await _hereService.GetCoordinate(model?.LocationId);
