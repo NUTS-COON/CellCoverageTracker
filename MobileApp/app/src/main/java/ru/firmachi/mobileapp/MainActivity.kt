@@ -2,19 +2,32 @@ package ru.firmachi.mobileapp
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.telephony.SubscriptionManager
+import android.telephony.TelephonyManager
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
-import ru.firmachi.mobileapp.services.TrackingService
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.network_info_block.view.*
+import ru.firmachi.mobileapp.appServices.TrackingService
+import ru.firmachi.mobileapp.models.CellData
+import ru.firmachi.mobileapp.services.NetworkService
 import java.util.*
+import java.util.zip.Inflater
 import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity() {
@@ -26,16 +39,81 @@ class MainActivity : AppCompatActivity() {
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.READ_PHONE_STATE)
 
+
+    lateinit var viewModel: MainViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        initViewModel()
         checkPermissions()
     }
 
+
     private fun run(){
         startService(Intent(baseContext, TrackingService::class.java))
+
+
+        viewModel.ready(getNetworkService())
     }
 
+
+    private fun getNetworkService(): NetworkService {
+        val telephonyManager = getSystemService(Context.TELEPHONY_SERVICE) as (TelephonyManager)
+        val subscriptionManager = getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
+        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        return NetworkService(applicationContext, telephonyManager, fusedLocationClient, subscriptionManager)
+    }
+
+
+    private fun initViewModel(){
+        viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
+        viewModel.cellDataLiveData.observe(this, androidx.lifecycle.Observer{
+            showNetworkInfo(it)
+        })
+        viewModel.scoreLiveData.observe(this, androidx.lifecycle.Observer {
+            showScoreInfo(it)
+        })
+    }
+
+
+    private fun showNetworkInfo(cellData: List<CellData>){
+        ll_network_info_block.removeAllViews()
+        cellData.forEach {
+            ll_network_info_block.addView(getNetworkInfoBlock(it))
+        }
+    }
+
+
+    private fun getNetworkInfoBlock(cellData: CellData): LinearLayout{
+        val v = LayoutInflater.from(this).inflate(R.layout.network_info_block, null) as LinearLayout
+        v.iv_signal_icon.setImageResource(getSignalIconResource(cellData.level))
+        v.tv_operator_name.text = cellData.operatorName
+        v.tv_signal_type.text = cellData.cellType
+
+        v.layoutParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            1.0f)
+
+        return v
+    }
+
+
+    private fun getSignalIconResource(signalLevel: Int): Int{
+        return when (signalLevel){
+            0 -> R.drawable.signal_red_0
+            1 -> R.drawable.signal_red_1
+            2 -> R.drawable.signal_red_3
+            3 -> R.drawable.signal_blue_4
+            4 -> R.drawable.signal_blue_5
+            else -> R.drawable.signal_blue_5
+        }
+    }
+
+    private fun showScoreInfo(score: Int){
+        tv_score_info.text = "Вы отправили $score точек"
+    }
 
     private fun checkGpsTurnOn(){
         val locationRequest = LocationRequest.create()
@@ -48,7 +126,7 @@ class MainActivity : AppCompatActivity() {
 
         LocationServices.getSettingsClient(this).checkLocationSettings(builder.build()).addOnCompleteListener {
             try {
-                val ignore = it.getResult(ApiException::class.java)
+                it.getResult(ApiException::class.java)
                 run()
             } catch (exception: ApiException) {
                 when (exception.statusCode) {
@@ -64,6 +142,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
 
     private fun checkPermissions() {
         val missingPermissions = ArrayList<String>()
@@ -95,6 +174,11 @@ class MainActivity : AppCompatActivity() {
                 when (resultCode){
                     Activity.RESULT_OK -> {
                         run()
+                    }
+                    else -> {
+                        Toast.makeText(baseContext,
+                            "Для работы приложения необходимо включить геолокацию",
+                            Toast.LENGTH_SHORT).show()
                     }
                 }
             }

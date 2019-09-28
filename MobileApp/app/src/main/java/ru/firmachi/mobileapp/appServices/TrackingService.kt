@@ -1,4 +1,4 @@
-package ru.firmachi.mobileapp.services
+package ru.firmachi.mobileapp.appServices
 
 import android.Manifest
 import android.app.NotificationChannel
@@ -22,11 +22,12 @@ import com.google.android.gms.location.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import ru.firmachi.mobileapp.ApiService
+import ru.firmachi.mobileapp.services.ApiService
 import ru.firmachi.mobileapp.App
 import ru.firmachi.mobileapp.R
 import ru.firmachi.mobileapp.models.CellData
 import ru.firmachi.mobileapp.models.api.SendCellDataRequest
+import ru.firmachi.mobileapp.services.NetworkService
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
@@ -42,7 +43,7 @@ class TrackingService : Service() {
     private val notificationChanel = "default"
 
     private val delayInSeconds = 30 * 1000L
-    private val requiredTaskCount = 30
+    private val requiredTaskCount = 20
 
     private val cellDataLocalRepository = App.component.getCellDataLocalRepository()
     private val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.UK)
@@ -54,6 +55,8 @@ class TrackingService : Service() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var subscriptionManager: SubscriptionManager
     private lateinit var locationCallback: LocationCallback
+
+    private lateinit var networkService: NetworkService
 
     @Inject
     lateinit var apiService: ApiService
@@ -68,11 +71,13 @@ class TrackingService : Service() {
     }
 
     override fun onCreate() {
+        Log.d("TRACK", "onCreate")
         super.onCreate()
 
         telephonyManager = getSystemService(Context.TELEPHONY_SERVICE) as (TelephonyManager)
         subscriptionManager = getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        networkService = NetworkService(applicationContext, telephonyManager, fusedLocationClient, subscriptionManager)
 
         runnable = Runnable {
             runTask()
@@ -102,25 +107,38 @@ class TrackingService : Service() {
     }
 
 
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("TRACK", "onDestroy")
+    }
+
+
     private fun runTask(){
         Toast.makeText(applicationContext, "runTask", Toast.LENGTH_SHORT).show()
         Log.d("TRACK", "runTask")
-        fusedLocationClient.lastLocation.addOnSuccessListener {
-            if (it == null || it.accuracy > 100) {
-                locationCallback = object : LocationCallback() {
-                    override fun onLocationResult(locationResult: LocationResult?) {
-                        fusedLocationClient.removeLocationUpdates(locationCallback)
-                        if (locationResult != null && locationResult.locations.isNotEmpty()) {
-                            retrieveCellData(locationResult.locations[0])
-                        }
-                    }
-                }
-
-                fusedLocationClient.requestLocationUpdates(LocationRequest(), locationCallback, null)
-            } else {
-                retrieveCellData(it)
+        networkService.getCellData {
+            cellDataLocalRepository.saveCellData(it)
+            if(cellDataLocalRepository.getAllCellDataCount() > requiredTaskCount){
+                syncData()
             }
         }
+
+//        fusedLocationClient.lastLocation.addOnSuccessListener {
+//            if (it == null || it.accuracy > 100) {
+//                locationCallback = object : LocationCallback() {
+//                    override fun onLocationResult(locationResult: LocationResult?) {
+//                        fusedLocationClient.removeLocationUpdates(locationCallback)
+//                        if (locationResult != null && locationResult.locations.isNotEmpty()) {
+//                            retrieveCellData(locationResult.locations[0])
+//                        }
+//                    }
+//                }
+//
+//                fusedLocationClient.requestLocationUpdates(LocationRequest(), locationCallback, null)
+//            } else {
+//                retrieveCellData(it)
+//            }
+//        }
     }
 
 
@@ -134,30 +152,34 @@ class TrackingService : Service() {
                 val cellData = CellData()
                 when(val cellInfo = activeSim[i]) {
                     is CellInfoGsm -> {
-                        val d = cellInfo.cellSignalStrength.dbm
+                        cellData.dbm = cellInfo.cellSignalStrength.dbm
                         cellData.level = cellInfo.cellSignalStrength.level
                         cellData.cellType = "2G"
                     }
                     is CellInfoCdma -> {
+                        cellData.dbm = cellInfo.cellSignalStrength.dbm
                         cellData.level = cellInfo.cellSignalStrength.level
                         cellData.cellType = "3G"
                     }
                     is CellInfoWcdma -> {
+                        cellData.dbm = cellInfo.cellSignalStrength.dbm
                         cellData.level = cellInfo.cellSignalStrength.level
                         cellData.cellType = "3G"
                     }
                     is CellInfoLte -> {
+                        cellData.dbm = cellInfo.cellSignalStrength.dbm
                         cellData.level = cellInfo.cellSignalStrength.level
                         cellData.cellType = "4G"
                     }
                     else -> {
+                        cellData.dbm = 0
                         cellData.level = 0
                         cellData.cellType = "2G"
                     }
                 }
 
                 cellData.latitude = location.latitude
-                cellData.longitude = location.latitude
+                cellData.longitude = location.longitude
                 cellData.operatorName = operatorsName[i]
                 cellData.timestamp = getTimestamp()
                 cellData.imei = telephonyManager.getDeviceId(i)
@@ -197,13 +219,13 @@ class TrackingService : Service() {
         initChannels(baseContext)
 
         val builder = NotificationCompat.Builder(baseContext, notificationChanel)
-            .setSmallIcon(R.drawable.ic_launcher_background)
+            .setSmallIcon(R.mipmap.logo)
             .setContentTitle("Анализ качества сети")
             .setContentText("Сбор информации о силе сигнала мобильной сети")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(snoozePendingIntent)
             .addAction(
-                R.drawable.ic_launcher_background,
+                R.mipmap.logo,
                 "Отключить",
                 snoozePendingIntent
             )

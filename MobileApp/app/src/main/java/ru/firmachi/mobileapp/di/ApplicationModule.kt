@@ -5,7 +5,7 @@ import dagger.Provides
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
-import ru.firmachi.mobileapp.ApiService
+import ru.firmachi.mobileapp.services.ApiService
 import ru.firmachi.mobileapp.repositories.CellDataLocalRepository
 import ru.firmachi.mobileapp.repositories.CellDataLocalRepositoryImpl
 import javax.inject.Singleton

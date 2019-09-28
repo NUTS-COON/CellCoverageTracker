@@ -10,9 +10,9 @@
     <application
         android:name=".App"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/logo"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/logo"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name="ru.firmachi.mobileapp.MainActivity">
@@ -23,22 +23,26 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".services.TrackingService"
+        <service android:name=".appServices.TrackingService"
             android:process=":TrackingService"
             android:enabled="true"
             android:exported="true"/>
 
-        <receiver android:name=".services.StartServiceReceiver" >
+        <receiver android:name=".appServices.StartServiceReceiver" >
             <intent-filter>
                 <action android:name="StartServiceReceiver"/>
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".services.StopServiceReceiver" >
+        <receiver android:name=".appServices.StopServiceReceiver" >
             <intent-filter>
                 <action android:name="StopServiceReceiver"/>
             </intent-filter>
         </receiver>
+
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
     </application>
 
 </manifest>

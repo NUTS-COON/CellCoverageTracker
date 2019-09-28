@@ -1,4 +1,4 @@
-package ru.firmachi.mobileapp.services
+package ru.firmachi.mobileapp.appServices
 
 import android.content.BroadcastReceiver
 import android.content.Context

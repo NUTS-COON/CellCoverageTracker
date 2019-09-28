@@ -13,6 +13,7 @@ open class CellData : RealmObject() {
     var cellType: String = ""
     var operatorName: String = ""
     var level: Int = 0
+    var dbm: Int = 0
     var timestamp: String = ""
     var imei: String = ""
 }

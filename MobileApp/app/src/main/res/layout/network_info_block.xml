@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:padding="8dp"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/iv_signal_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="200dp"
+        android:src="@drawable/signal_red_1"/>
+
+    <TextView
+        android:id="@+id/tv_operator_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="TELE2"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        android:textSize="30sp"/>
+
+    <TextView
+        android:id="@+id/tv_signal_type"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="2G"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        android:textSize="24sp"
+        android:gravity="center"/>
+
+</LinearLayout>
