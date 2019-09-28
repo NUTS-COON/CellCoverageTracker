@@ -1,15 +1,22 @@
 package ru.firmachi.mobileapp.services
 
 import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
+import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.telephony.*
 import android.util.Log
+import android.widget.Toast
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.*
 import kotlinx.coroutines.Dispatchers
@@ -17,6 +24,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import ru.firmachi.mobileapp.ApiService
 import ru.firmachi.mobileapp.App
+import ru.firmachi.mobileapp.R
 import ru.firmachi.mobileapp.models.CellData
 import ru.firmachi.mobileapp.models.api.SendCellDataRequest
 import java.text.SimpleDateFormat
@@ -26,8 +34,14 @@ import javax.inject.Inject
 
 class TrackingService : Service() {
 
+    companion object{
+        const val notificationId = 1111
+        var stopFlag = false
+    }
 
-    private val delayInSeconds = 25 * 1000L
+    private val notificationChanel = "default"
+
+    private val delayInSeconds = 30 * 1000L
     private val requiredTaskCount = 30
 
     private val cellDataLocalRepository = App.component.getCellDataLocalRepository()
@@ -68,12 +82,28 @@ class TrackingService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d("TRACK", "start")
+        showNotification()
         runnable.run()
         return START_STICKY
     }
 
 
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        Log.d("TRACK", "TASK REMOVED")
+        super.onTaskRemoved(rootIntent)
+        if(stopFlag){
+            stopFlag = false
+            Log.d("TRACK", "taskKilled")
+            return
+        }
+
+        sendBroadcast(Intent(applicationContext, StartServiceReceiver::class.java).setAction("StartServiceReceiver"))
+        Log.d("TRACK", "taskRestarted")
+    }
+
+
     private fun runTask(){
+        Toast.makeText(applicationContext, "runTask", Toast.LENGTH_SHORT).show()
         Log.d("TRACK", "runTask")
         fusedLocationClient.lastLocation.addOnSuccessListener {
             if (it == null || it.accuracy > 100) {
@@ -158,6 +188,48 @@ class TrackingService : Service() {
         }
 
         return res.map { it!! }.toTypedArray()
+    }
+
+
+    private fun showNotification(){
+        val snoozeIntent = Intent(baseContext, StopServiceReceiver::class.java).setAction("StopServiceReceiver")
+        val snoozePendingIntent = PendingIntent.getBroadcast(baseContext, 0, snoozeIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        initChannels(baseContext)
+
+        val builder = NotificationCompat.Builder(baseContext, notificationChanel)
+            .setSmallIcon(R.drawable.ic_launcher_background)
+            .setContentTitle("Анализ качества сети")
+            .setContentText("Сбор информации о силе сигнала мобильной сети")
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setContentIntent(snoozePendingIntent)
+            .addAction(
+                R.drawable.ic_launcher_background,
+                "Отключить",
+                snoozePendingIntent
+            )
+            .setOngoing(true)
+
+
+        with(NotificationManagerCompat.from(baseContext)){
+            notify(notificationId, builder.build())
+            Log.d("TRACK", "notify")
+        }
+    }
+
+
+    private fun initChannels(context: Context) {
+        if (Build.VERSION.SDK_INT < 26) {
+            return
+        }
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val channel = NotificationChannel(
+            notificationChanel,
+            this.javaClass.name,
+            NotificationManager.IMPORTANCE_DEFAULT
+        )
+        channel.description = "Channel description"
+        notificationManager.createNotificationChannel(channel)
     }
 
 

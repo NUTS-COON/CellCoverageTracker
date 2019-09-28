@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun run(){
-        startService(Intent(applicationContext, TrackingService::class.java))
+        startService(Intent(baseContext, TrackingService::class.java))
     }
 
 

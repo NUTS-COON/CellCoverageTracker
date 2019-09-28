@@ -24,12 +24,19 @@
         </activity>
 
         <service android:name=".services.TrackingService"
+            android:process=":TrackingService"
             android:enabled="true"
             android:exported="true"/>
 
         <receiver android:name=".services.StartServiceReceiver" >
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="StartServiceReceiver"/>
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".services.StopServiceReceiver" >
+            <intent-filter>
+                <action android:name="StopServiceReceiver"/>
             </intent-filter>
         </receiver>
     </application>
