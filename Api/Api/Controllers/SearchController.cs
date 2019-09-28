@@ -51,11 +51,11 @@ namespace Api.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public RouteLocationInfo[] GetRoute(string routeId)
+        public Coordinate[] GetRoute(string routeId)
         {
             return new []
             { 
-                new RouteLocationInfo
+                new Coordinate
                 {
                     Latitude = 1,
                     Longitude = 1
