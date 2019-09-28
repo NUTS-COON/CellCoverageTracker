@@ -3,7 +3,9 @@ using Api.Models;
 using Api.Services.Interfaces;
 using Api.Settings;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -36,6 +38,60 @@ namespace Api.Services
                 .ToString();
 
             return await HttpHepler.GetResult<HereRouteResponse>(url);
+        }
+
+        public async Task<Coordinate> GetCoordinate(string locationId)
+        {
+            if (string.IsNullOrEmpty(locationId))
+                return null;
+
+            var url = new StringBuilder()
+                .Append("http://geocoder.api.here.com/6.2/geocode.json")
+                .Append($"?locationid={locationId}")
+                .Append($"&jsonattributes=1")
+                .Append($"&gen=9")
+                .Append($"&app_id={_hereSettings.AppId}")
+                .Append($"&app_code={_hereSettings.AppCode}")
+                .ToString();
+            return (await HttpHepler.GetResult<HereGeocoder>(url))?.GetCoordinate();
+        }
+
+        public async Task<HereSuggestions> GetSuggestions(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+                return null;
+
+            var url = new StringBuilder()
+                .Append("http://autocomplete.geocoder.api.here.com/6.2/suggest.json")
+                .Append($"?app_id={_hereSettings.AppId}")
+                .Append($"&app_code={_hereSettings.AppCode}")
+                .Append($"&query={text}")
+                .ToString();
+
+            return await HttpHepler.GetResult<HereSuggestions>(url);
+        }
+
+        public async Task<IEnumerable<SuggesionAddress>> GetSuggestionsWithCoordinates(string text)
+        {
+            var suggections = (await GetSuggestions(text))?.Suggestions;
+            if (suggections == null || !suggections.Any())
+                return Enumerable.Empty<SuggesionAddress>();
+
+            var result = new List<SuggesionAddress>();
+            foreach(var suggection in suggections)
+            {
+                var coordinate = await GetCoordinate(suggection.LocationId);
+                if (coordinate == null)
+                    continue;
+
+                result.Add(new SuggesionAddress
+                {
+                    Coordinate = coordinate,
+                    Address = suggection.Address.FullAddress
+                });
+            }
+
+            return result;
         }
     }
 }

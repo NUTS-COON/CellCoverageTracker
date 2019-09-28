@@ -1,5 +1,9 @@
 using Api.Models;
+using Api.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Api.Controllers
 {
@@ -7,60 +11,25 @@ namespace Api.Controllers
     [ApiController]
     public class SearchController : ControllerBase
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet]
-        public SuggestionResponse[] Suggestion(string name)
+        private readonly IRouteSearcher _routeSearcher;
+        private readonly IHereService _hereService;
+
+        public SearchController(IRouteSearcher routeSearcher, IHereService hereService)
         {
-            return new []
-            { 
-                new SuggestionResponse
-                {
-                    Name = "Казань",
-                    StationId = 2060615
-                },
-                new SuggestionResponse
-                {
-                    Name = "Аэропорт Казань",
-                    StationId = 2060790
-                }
-            };
+            _routeSearcher = routeSearcher;
+            _hereService = hereService;
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet]
-        public FindRouteResponse[] FindRoutes(int stationFromId, int stationToId)
+
+        [HttpPost]
+        public async Task<List<TargetRoute>> FindRoutes([FromBody]RouteSearchInfo model)
         {
-            return new []
-            { 
-                new FindRouteResponse
-                {
-                    Name = "Казань - Аэропорт Казань",
-                    Id = "fake1"
-                }
-            };
+            return await _routeSearcher.GetHereRoutes(model.From, model.To, model.Time ?? DateTime.Now);
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet]
-        public Coordinate[] GetRoute(string routeId)
+
+        [HttpPost]
+        public async Task<IEnumerable<SuggesionAddress>> GetSuggestions([FromBody]AddressText text)
         {
-            return new []
-            { 
-                new Coordinate
-                {
-                    Latitude = 1,
-                    Longitude = 1
-                }
-            };
+            return await _hereService.GetSuggestionsWithCoordinates(text?.Text);
         }
     }
 }
