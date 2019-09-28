@@ -1,6 +1,8 @@
 ﻿using Api.Logic;
 using Api.Models;
+using Api.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -14,10 +16,12 @@ namespace Api.Controllers
     public class DataController : ControllerBase
     {
         private readonly DataService _dataService;
+        private readonly IRouteSearcher _routeSearcher;
         
-        public DataController(DataService dataService)
+        public DataController(DataService dataService, IRouteSearcher routeSearcher)
         {
             _dataService = dataService;
+            _routeSearcher = routeSearcher;
         }
         
         /// <summary>
@@ -53,5 +57,12 @@ namespace Api.Controllers
         {
             return await _dataService.Get(model);
         }
+
+        [HttpPost]
+        public async Task<List<TargetRoute>> GetHereRoute([FromBody]RouteSearchInfo model)
+        {
+            return await _routeSearcher.GetHereRoutes(model.From, model.To, model.Time ?? DateTime.Now);
+        }
+
     }
 }

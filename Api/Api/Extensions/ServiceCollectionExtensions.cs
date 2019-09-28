@@ -2,6 +2,8 @@ using System;
 using System.IO;
 using System.Reflection;
 using Api.Logic;
+using Api.Services;
+using Api.Services.Interfaces;
 using Api.Settings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,13 +15,18 @@ namespace Api.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-
-        public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration Configuration)
+        public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.Configure<MongoSettings>(Configuration.GetSection(nameof(MongoSettings)));
+            services.Configure<MongoSettings>(configuration.GetSection(nameof(MongoSettings)));
             services.AddSingleton(sp => sp.GetRequiredService<IOptions<MongoSettings>>().Value);
+
+            services.Configure<HereSettings>(configuration.GetSection(nameof(HereSettings)));
+            services.AddSingleton(sp => sp.GetRequiredService<IOptions<HereSettings>>().Value);
+
             services.AddSingleton<DataService>();
-            
+            services.AddTransient<IHereService, HereService>();
+            services.AddTransient<IRouteSearcher, RouteSearcher>();
+
             return services;
         }
 
