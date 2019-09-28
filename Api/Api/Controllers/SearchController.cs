@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Api.Logic;
 using System.Linq;
+using System;
 
 namespace Api.Controllers
 {
@@ -35,10 +36,20 @@ namespace Api.Controllers
             
             var points = await _dataService.SearchGeo(route.ToArray());
 
+            var distinctAveragePoints = points.GroupBy(c => c, new CellPointComparer())
+                .Select(g => new CellPoint
+                {
+                    Level = (int)Math.Round(g.Average(c => c.Level)),
+                    Latitude = g.Key.Latitude,
+                    Longitude = g.Key.Longitude,
+                    CellType = g.Key.CellType,
+                    OperatorName = g.Key.OperatorName
+                });
+
             return new RouteInfoResponse()
             {
                 Route = route,
-                Points = points.Take(500).ToList(),
+                Points = distinctAveragePoints.Take(500).ToList(),
                 Stat = new RouteStat()
                 {
                     OperatorStats = new List<RouteOperatorStat>()
