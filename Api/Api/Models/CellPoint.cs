@@ -1,10 +1,21 @@
 ﻿namespace Api.Models
 {
-    public class CellPoint
+    public class CellPoint : Coordinate
     {
+        public CellPoint()
+        {
+        }
+        
+        public CellPoint(CellInfoMongoModel x)
+        {
+            OperatorName = x.OperatorName;
+            CellType = x.CellType;
+            Level = x.Level;
+            Latitude = x.Location.Latitude;
+            Longitude = x.Location.Longitude;
+        }
+        
         public string OperatorName { get; set; }
-        public decimal Latitude { get; set; }
-        public decimal Longitude { get; set; }
         public string CellType { get; set; }
         public int Level { get; set; }
     }

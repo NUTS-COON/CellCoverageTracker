@@ -29,7 +29,7 @@ namespace Api.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost]
-        public async Task<object> Save([FromBody] CellInfo model)
+        public async Task<object> Save([FromBody] CellInfoSaveRequest model)
         {
             await _dataService.Add(model);
             return new { success = true };
@@ -40,7 +40,7 @@ namespace Api.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost]
-        public async Task<object> SaveMany([FromBody] CellInfo[] models)
+        public async Task<object> SaveMany([FromBody] CellInfoSaveRequest[] models)
         {
             await _dataService.Add(models);
             return new { success = true };
