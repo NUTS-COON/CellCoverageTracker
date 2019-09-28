@@ -1,6 +1,7 @@
 ﻿using Api.Logic;
 using Api.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Api.Controllers
@@ -45,6 +46,12 @@ namespace Api.Controllers
         public async Task<long> CountByImei([FromBody] CountByImeiRequest model)
         {
             return await _dataService.CountByImei(model.Imei);
+        }
+
+        [HttpPost]
+        public async Task<object> GetPoints([FromBody]RectangleOfSearch model)
+        {
+            return await _dataService.Get(model);
         }
     }
 }
