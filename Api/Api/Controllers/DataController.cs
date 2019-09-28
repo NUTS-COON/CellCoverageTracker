@@ -1,7 +1,7 @@
 ﻿using Api.Logic;
 using Api.Models;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Api.Controllers
@@ -10,11 +10,12 @@ namespace Api.Controllers
     /// 
     /// </summary>
     [Route("api/[controller]/[action]")]
+    [EnableCors("AllowAll")]
     [ApiController]
     public class DataController : ControllerBase
     {
         private readonly DataService _dataService;
-        
+
         public DataController(DataService dataService)
         {
             _dataService = dataService;
@@ -25,7 +26,7 @@ namespace Api.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost]
-        public async Task<object> Save([FromBody] CellInfo model)
+        public async Task<object> Save([FromBody] CellInfoSaveRequest model)
         {
             await _dataService.Add(model);
             return new { success = true };
@@ -36,7 +37,7 @@ namespace Api.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost]
-        public async Task<object> SaveMany([FromBody] CellInfo[] models)
+        public async Task<object> SaveMany([FromBody] CellInfoSaveRequest[] models)
         {
             await _dataService.Add(models);
             return new { success = true };
@@ -46,12 +47,6 @@ namespace Api.Controllers
         public async Task<long> CountByImei([FromBody] CountByImeiRequest model)
         {
             return await _dataService.CountByImei(model.Imei);
-        }
-
-        [HttpPost]
-        public async Task<object> GetPoints([FromBody]RectangleOfSearch model)
-        {
-            return await _dataService.Get(model);
         }
     }
 }
