@@ -26,33 +26,18 @@ namespace Api.Logic
             var data = new CellInfoMongoModel(item);
             await _data.InsertOneAsync(data);
         }
-        
 
         public async Task Add(CellInfoSaveRequest[] items) => await _data.InsertManyAsync(items.Select(i => new CellInfoMongoModel(i)));
 
-        public async Task<IEnumerable<CellPoint>> Get(RectangleOfSearch model)
+        public async Task<IEnumerable<CellPoint>> SearchGeo(Coordinate[] points)
         {
-            var resultFilter = Builders<CellInfoMongoModel>.Filter.Empty;
+            var minX = points.Select(t => t.Longitude).Min();
+            var maxX = points.Select(t => t.Longitude).Max();
+            var minY = points.Select(t => t.Latitude).Min();
+            var maxY = points.Select(t => t.Latitude).Max();
+            var filter = Builders<CellInfoMongoModel>.Filter.GeoWithinBox(c => c.Location, minX, maxX, minY,maxY);
 
-            if (model.Filter?.Level != null)
-                resultFilter &= Builders<CellInfoMongoModel>.Filter.Eq(c => c.Level, model.Filter.Level);
-
-            if (!string.IsNullOrEmpty(model.Filter?.CellType))
-                resultFilter &= Builders<CellInfoMongoModel>.Filter.Eq(c => c.CellType, model.Filter.CellType);
-
-            if (!string.IsNullOrEmpty(model.Filter?.OperatorName))
-                resultFilter &= Builders<CellInfoMongoModel>.Filter.Eq(c => c.OperatorName, model.Filter.OperatorName);
-
-            if (model.LeftBottomCorner != null && model.RightTopCorner != null)
-                resultFilter &= GetBetweenFilter(model.LeftBottomCorner, model.RightTopCorner);
-
-            return (await _data.FindAsync(resultFilter))?.ToList()?.Select(c => new CellPoint(c));
-        }
-
-        private FilterDefinition<CellInfoMongoModel> GetBetweenFilter(Coordinate leftBottomCorner, Coordinate rightTopCorner)
-        {
-            return new FilterDefinitionBuilder<CellInfoMongoModel>().And(
-                Builders<CellInfoMongoModel>.Filter.GeoWithinBox(c => c.Location, leftBottomCorner.Longitude, leftBottomCorner.Latitude, rightTopCorner.Longitude,rightTopCorner.Latitude));
+            return (await _data.FindAsync(filter))?.ToList()?.Select(c => new CellPoint(c));
         }
     }
 }

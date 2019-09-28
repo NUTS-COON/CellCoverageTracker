@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Api.Logic;
 
 namespace Api.Controllers
 {
@@ -15,11 +16,14 @@ namespace Api.Controllers
     {
         private readonly IRouteSearcher _routeSearcher;
         private readonly IHereService _hereService;
+        private readonly DataService _dataService;
 
-        public SearchController(IRouteSearcher routeSearcher, IHereService hereService)
+        public SearchController(IRouteSearcher routeSearcher, IHereService hereService,
+            DataService dataService)
         {
             _routeSearcher = routeSearcher;
             _hereService = hereService;
+            _dataService = dataService;
         }
 
         [HttpPost]
@@ -32,6 +36,12 @@ namespace Api.Controllers
         public async Task<IEnumerable<SuggesionAddress>> GetSuggestions([FromBody]AddressText text)
         {
             return await _hereService.GetSuggestionsWithCoordinates(text?.Text);
+        }
+
+        [HttpPost]
+        public async Task<object> GetPoints([FromBody]RectangleOfSearch model)
+        {
+            return await _dataService.SearchGeo(new [] { model.LeftBottom, model.RightTop });
         }
     }
 }
