@@ -36,9 +36,8 @@ class MainViewModel : ViewModel() {
         GlobalScope.launch(Dispatchers.IO) {
             var score = 0
 
-            cellDataLocalRepository
-                .getLastDifferent()
-                .map { it.imei }
+            networkService
+                .getImei()
                 .forEach {
                     val request = apiService.getScore(GetScoreRequest(it)).execute()
                     if(request.isSuccessful && request.body() != null){

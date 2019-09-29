@@ -83,13 +83,6 @@ class TrackingService : Service() {
         Log.d("TRACK", "start")
         showNotification()
 
-        runnable.run()
-        val r = Runnable {
-            showInfoNotification()
-        }
-        val h = Handler()
-        h.postDelayed(r, 10 * 1000)
-
         return START_STICKY
     }
 
@@ -133,7 +126,6 @@ class TrackingService : Service() {
         val builder = NotificationCompat.Builder(baseContext, notificationChanel)
             .setSmallIcon(R.mipmap.logo)
             .setContentTitle("Информация о сети")
-            .setContentText("Приблизиетльно через 5 минут по маршруту вашего следования будет плохое покрытие сети в течении 30 минут")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)

@@ -22,21 +22,6 @@ class CellDataLocalRepositoryImpl : CellDataLocalRepository {
     }
 
 
-    override fun getLastDifferent(): List<CellData>{
-        val cellData = Realm.getDefaultInstance()
-            .where(CellData::class.java)
-            .sort(CellData::timestamp.name, Sort.DESCENDING)
-            .limit(2)
-            .findAll()
-
-        if(cellData.size == 2 && cellData[0]?.imei == cellData[0]?.imei){
-            return cellData.take(1)
-        }
-
-        return cellData
-    }
-
-
     override fun getAllCellDataCount(): Int {
         return Realm.getDefaultInstance().where(CellData::class.java).count().toInt()
     }

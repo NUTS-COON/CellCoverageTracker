@@ -42,26 +42,14 @@ class NetworkService(
             }
         }
         fusedLocationClient.requestLocationUpdates(LocationRequest(), locationCallback, null)
-//        fusedLocationClient.lastLocation.addOnSuccessListener {
-//            if (it == null || it.accuracy > 100) {
-//                locationCallback = object : LocationCallback() {
-//                    override fun onLocationResult(locationResult: LocationResult?) {
-//                        fusedLocationClient.removeLocationUpdates(locationCallback)
-//                        if (locationResult != null && locationResult.locations.isNotEmpty()) {
-//                            onSuccess(getCellData(locationResult.locations[0]))
-//                        }else{
-//                            onSuccess(emptyList())
-//                        }
-//                    }
-//                }
-//
-//                fusedLocationClient.requestLocationUpdates(LocationRequest(), locationCallback, null)
-//            } else {
-//                onSuccess(getCellData(it))
-//            }
-//        }
     }
 
+    fun getImei(): List<String>{
+        val activeSimCount = telephonyManager.allCellInfo.filter { c -> c.isRegistered }.size
+        return (0 until activeSimCount).map {
+            telephonyManager.getDeviceId(it)
+        }
+    }
 
 
     private fun getCellData(location: Location?): MutableList<CellData> {
