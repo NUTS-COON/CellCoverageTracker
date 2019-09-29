@@ -8,18 +8,27 @@
     <ImageView
         android:id="@+id/iv_signal_icon"
         android:layout_width="wrap_content"
-        android:layout_height="200dp"
+        android:layout_height="150dp"
         android:src="@drawable/signal_red_1"/>
+
+    <ImageView
+        android:id="@+id/iv_operator_logo"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/logo_tele2"
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/tv_operator_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:gravity="center"
         android:text="TELE2"
         android:textStyle="bold"
         android:textColor="@android:color/black"
-        android:textSize="30sp"/>
+        android:textSize="28sp"/>
 
     <TextView
         android:id="@+id/tv_signal_type"
@@ -28,7 +37,7 @@
         android:text="2G"
         android:textStyle="bold"
         android:textColor="@android:color/black"
-        android:textSize="24sp"
+        android:textSize="22sp"
         android:gravity="center"/>
 
 </LinearLayout>

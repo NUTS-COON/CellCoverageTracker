@@ -34,7 +34,7 @@ class TrackingService : Service() {
     }
 
     private val notificationChanel = "default"
-    private val delayInSeconds = 30 * 1000L
+    private val delayInSeconds = 20 * 1000L
     private val requiredTaskCount = 20
 
     private val handler = Handler()
