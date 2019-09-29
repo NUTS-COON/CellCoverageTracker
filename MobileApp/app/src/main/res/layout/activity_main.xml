@@ -28,14 +28,12 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/levelColor"
                 android:paddingStart="8dp"
-                android:text="Columb"
                 android:textSize="22sp"/>
         </LinearLayout>
         <TextView
             android:id="@+id/tv_score_info"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Отправлено 1082 точки"
             android:textSize="18sp"/>
     </LinearLayout>
     <LinearLayout

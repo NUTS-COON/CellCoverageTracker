@@ -19,6 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import ru.firmachi.mobileapp.App
+import ru.firmachi.mobileapp.MainActivity
 import ru.firmachi.mobileapp.R
 import ru.firmachi.mobileapp.models.api.SendCellDataRequest
 import ru.firmachi.mobileapp.services.ApiService
@@ -33,9 +34,11 @@ class TrackingService : Service() {
         var stopFlag = false
     }
 
+    private var alreadyRun = false
     private val notificationChanel = "default"
     private val delayInSeconds = 20 * 1000L
     private val requiredTaskCount = 20
+    private val infoNotificationId = 2222
 
     private val handler = Handler()
     private val cellDataLocalRepository = App.component.getCellDataLocalRepository()
@@ -71,9 +74,22 @@ class TrackingService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if(alreadyRun){
+            Log.d("TRACK", "start_alreadyRun")
+            return START_STICKY
+        }
+
+        alreadyRun = true
         Log.d("TRACK", "start")
         showNotification()
+
         runnable.run()
+        val r = Runnable {
+            showInfoNotification()
+        }
+        val h = Handler()
+        h.postDelayed(r, 10 * 1000)
+
         return START_STICKY
     }
 
@@ -109,10 +125,34 @@ class TrackingService : Service() {
     }
 
 
+    private fun showInfoNotification(){
+        val mainActivityIntent = Intent(baseContext, MainActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(baseContext, 1, mainActivityIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        initChannels(baseContext)
+
+        val builder = NotificationCompat.Builder(baseContext, notificationChanel)
+            .setSmallIcon(R.mipmap.logo)
+            .setContentTitle("Информация о сети")
+            //.setSubText("Приблизиетльно через 5 минут по маршруту вашего следования будет плохое покрытие сети в течении 30 минут")
+            .setContentText("Приблизиетльно через 5 минут по маршруту вашего следования будет плохое покрытие сети в течении 30 минут")
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+
+
+        with(NotificationManagerCompat.from(baseContext)){
+            notify(infoNotificationId, builder.build())
+            Log.d("TRACK", "notify")
+        }
+    }
+
 
     private fun showNotification(){
         val snoozeIntent = Intent(baseContext, StopServiceReceiver::class.java).setAction("StopServiceReceiver")
         val snoozePendingIntent = PendingIntent.getBroadcast(baseContext, 0, snoozeIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+
+        val mainActivityIntent = Intent(baseContext, MainActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(baseContext, 1, mainActivityIntent, PendingIntent.FLAG_UPDATE_CURRENT)
         initChannels(baseContext)
 
         val builder = NotificationCompat.Builder(baseContext, notificationChanel)
@@ -120,7 +160,7 @@ class TrackingService : Service() {
             .setContentTitle("Анализ качества сети")
             .setContentText("Сбор информации о силе сигнала мобильной сети")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setContentIntent(snoozePendingIntent)
+            .setContentIntent(pendingIntent)
             .addAction(
                 R.mipmap.logo,
                 "Отключить",

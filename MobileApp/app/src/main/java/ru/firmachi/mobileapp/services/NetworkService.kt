@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import android.telephony.*
+import android.util.Log
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -27,24 +28,38 @@ class NetworkService(
 
 
     fun retrieveCellData(onSuccess: (List<CellData>) -> Unit) {
-        fusedLocationClient.lastLocation.addOnSuccessListener {
-            if (it == null || it.accuracy > 100) {
-                locationCallback = object : LocationCallback() {
-                    override fun onLocationResult(locationResult: LocationResult?) {
-                        fusedLocationClient.removeLocationUpdates(locationCallback)
-                        if (locationResult != null && locationResult.locations.isNotEmpty()) {
-                            onSuccess(getCellData(locationResult.locations[0]))
-                        }else{
-                            onSuccess(emptyList())
-                        }
-                    }
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult?) {
+                fusedLocationClient.removeLocationUpdates(locationCallback)
+                if (locationResult != null && locationResult.locations.isNotEmpty()) {
+                    onSuccess(getCellData(locationResult.locations[0]))
+                    Log.d("TRACK", "onLocationResultSuccess")
+                }else{
+                    onSuccess(emptyList())
+                    Log.d("TRACK", "onLocationResultBad")
                 }
-
-                fusedLocationClient.requestLocationUpdates(LocationRequest(), locationCallback, null)
-            } else {
-                onSuccess(getCellData(it))
+                fusedLocationClient.removeLocationUpdates(locationCallback)
             }
         }
+        fusedLocationClient.requestLocationUpdates(LocationRequest(), locationCallback, null)
+//        fusedLocationClient.lastLocation.addOnSuccessListener {
+//            if (it == null || it.accuracy > 100) {
+//                locationCallback = object : LocationCallback() {
+//                    override fun onLocationResult(locationResult: LocationResult?) {
+//                        fusedLocationClient.removeLocationUpdates(locationCallback)
+//                        if (locationResult != null && locationResult.locations.isNotEmpty()) {
+//                            onSuccess(getCellData(locationResult.locations[0]))
+//                        }else{
+//                            onSuccess(emptyList())
+//                        }
+//                    }
+//                }
+//
+//                fusedLocationClient.requestLocationUpdates(LocationRequest(), locationCallback, null)
+//            } else {
+//                onSuccess(getCellData(it))
+//            }
+//        }
     }
 
 

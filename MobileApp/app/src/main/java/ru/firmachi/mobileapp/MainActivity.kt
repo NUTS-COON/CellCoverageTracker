@@ -55,6 +55,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         initViewModel()
         initialize()
+    }
+
+
+    override fun onStart() {
+        super.onStart()
         checkPermissions()
     }
 
@@ -162,6 +167,17 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun getLevelName(score: Int): String{
+        if(score < 100){
+            return "Миклуха-Маклай"
+        }
+
+        if(score < 300){
+            return "Васко да Гама"
+        }
+
+        if(score < 500){
+            return "Джеймс Кук"
+        }
         return "Колумб"
     }
 
