@@ -133,15 +133,19 @@ class TrackingService : Service() {
         val builder = NotificationCompat.Builder(baseContext, notificationChanel)
             .setSmallIcon(R.mipmap.logo)
             .setContentTitle("Информация о сети")
-            //.setSubText("Приблизиетльно через 5 минут по маршруту вашего следования будет плохое покрытие сети в течении 30 минут")
             .setContentText("Приблизиетльно через 5 минут по маршруту вашего следования будет плохое покрытие сети в течении 30 минут")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
 
 
+        val notification = NotificationCompat.BigTextStyle(builder)
+            .bigText("Приблизиетльно через 5 минут по маршруту вашего следования будет плохое покрытие сети в течении 30 минут")
+            .build()
+
+
         with(NotificationManagerCompat.from(baseContext)){
-            notify(infoNotificationId, builder.build())
+            notify(infoNotificationId, notification)
             Log.d("TRACK", "notify")
         }
     }
