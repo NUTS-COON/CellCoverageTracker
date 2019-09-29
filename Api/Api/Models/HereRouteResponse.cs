@@ -13,6 +13,7 @@
     public class HereRouteInfo
     {
         public HereLegInfo[] Leg { get; set; }
+        public string[] Shape { get; set; }
         public HerePublicTransportLine[] PublicTransportLine { get; set; }
     }
 
